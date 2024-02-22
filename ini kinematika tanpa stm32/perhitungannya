@@ -1,0 +1,289 @@
+#include <math.h>
+#include <Servo.h>
+
+Servo base, shoulder, elbow, wrist;
+int servo1, servo2, servo3, gripper;
+
+void setup() {
+  // Inisialisasi komunikasi serial dengan baudrate 9600
+  Serial.begin(9600);
+
+  // Mengatur pin servo
+  base.attach(8);
+  shoulder.attach(9);
+  elbow.attach(10);
+  wrist.attach(11);
+}
+
+void loop() {
+  move_forward(); // Gerakan maju
+  delay(2000);    // Tunggu 2 detik
+  move_backward(); // Gerakan mundur
+  delay(2000);    // Tunggu 2 detik
+}
+
+void move_forward() {
+  int i, j, k, l;
+  int distance;
+
+  // Melakukan gerakan maju
+  for (i = 0; i <= 180; i++) {
+    distance = Transfer(i, 0, 0, 0);
+    if (distance >= 12 && distance < 14) {
+      // Gerakan servo ke arah bawah
+      for (k = 0; k <= 80; k++) {
+        Transfer(i, k, 0, 0);
+        delay(20);
+      }
+      delay(1000); // Tunggu 1 detik
+      // Gerakan servo ke arah atas
+      for (j = 80; j >= -1; j--) {
+        Transfer(i, k, j, 0);
+        delay(20);
+      }
+      delay(1000); // Tunggu 1 detik
+      // Menutup gripper
+      Transfer(i, k, j, 90);
+      delay(1000); // Tunggu 1 detik
+      // Mengembalikan gripper ke posisi semula
+      for (j = 0; j <= 80; j++) {
+        Transfer(i, k, j, 90);
+        delay(20);
+      }
+      delay(1000); // Tunggu 1 detik
+      // Menutup gripper kembali
+      for (k = 80; k >= -1; k--) {
+        Transfer(i, k, j, 90);
+        delay(20);
+      }
+      delay(1000); // Tunggu 1 detik
+      // Melakukan gerakan ke posisi akhir
+      for (l = i; l <= 220; l++) {
+        Transfer(l, k, j, 90);
+        delay(20);
+      }
+      delay(1000); // Tunggu 1 detik
+
+      // Jika jarak kurang dari 8 cm
+      if (distance < 8) {
+        Transfer(l, k, j, 90);
+        delay(1000); // Tunggu 1 detik
+        // Gerakan servo ke arah atas
+        for (j = 0; j >= -45; j--) {
+          Transfer(l, k, j, 90);
+          delay(20);
+        }
+        delay(1000); // Tunggu 1 detik
+        // Gerakan servo ke arah depan
+        for (k = 0; k >= -40; k--) {
+          Transfer(l, k, j, 90);
+          delay(20);
+        }
+        delay(1000); // Tunggu 1 detik
+        // Mengembalikan gripper ke posisi semula
+        Transfer(l, j, k, 0);
+        delay(1000); // Tunggu 1 detik
+        // Gerakan servo ke arah bawah
+        for (k = -40; k <= 0; k++) {
+          Transfer(l, k, j, 0);
+          delay(20);
+        }
+        delay(1000); // Tunggu 1 detik
+        // Gerakan servo ke arah belakang
+        for (j = -45; j <= 0; j++) {
+          Transfer(l, k, j, 0);
+          delay(20);
+        }
+        delay(1000); // Tunggu 1 detik
+        // Melakukan gerakan ke posisi awal
+        for (l = l; l >= i; l--) {
+          Transfer(l, k, j, 0);
+          delay(20);
+        }
+        break;
+      } else {
+        // Jika jarak lebih dari 8 cm
+        Transfer(l, k, j, 90);
+        delay(1000); // Tunggu 1 detik
+        // Gerakan servo ke arah bawah
+        for (k = 0; k >= -80; k--) {
+          Transfer(l, k, j, 90);
+          delay(20);
+        }
+        delay(1000); // Tunggu 1 detik
+        // Gerakan servo ke arah atas
+        for (j = 0; j >= -80; j--) {
+          Transfer(l, k, j, 90);
+          delay(20);
+        }
+        delay(1000); // Tunggu 1 detik
+        // Mengembalikan gripper ke posisi semula
+        Transfer(l, j, k, 0);
+        delay(1000); // Tunggu 1 detik
+        // Gerakan servo ke arah belakang
+        for (j = -80; j <= 0; j++) {
+          Transfer(l, k, j, 0);
+          delay(20);
+        }
+        delay(1000); // Tunggu 1 detik
+        // Gerakan servo ke arah bawah
+        for (k = -80; k <= 0; k++) {
+          Transfer(l, k, j, 0);
+          delay(20);
+        }
+        delay(1000); // Tunggu 1 detik
+        // Melakukan gerakan ke posisi awal
+        for (l = l; l >= i; l--) {
+          Transfer(l, k, j, 0);
+          delay(20);
+        }
+        break;
+      }
+    }
+    delay(20);
+  }
+}
+
+void move_backward() {
+  int i, j, k, l;
+  int distance;
+
+  // Melakukan gerakan mundur
+  for (i = 180; i >= 0; i--) {
+    distance = Transfer(i, 0, 0, 0);
+    if (distance >= 12 && distance < 14) {
+      // Gerakan servo ke arah bawah
+      for (k = 0; k <= 80; k++) {
+        Transfer(i, k, 0, 0);
+        delay(20);
+      }
+      delay(1000); // Tunggu 1 detik
+      // Gerakan servo ke arah atas
+      for (j = 80; j >= -1; j--) {
+        Transfer(i, k, j, 0);
+        delay(20);
+      }
+      delay(1000); // Tunggu 1 detik
+      // Menutup gripper
+      Transfer(i, k, j, 90);
+      delay(1000); // Tunggu 1 detik
+      // Mengembalikan gripper ke posisi semula
+      for (j = 0; j <= 80; j++) {
+        Transfer(i, k, j, 90);
+        delay(20);
+      }
+      delay(1000); // Tunggu 1 detik
+      // Menutup gripper kembali
+      for (k = 80; k >= -1; k--) {
+        Transfer(i, k, j, 90);
+        delay(20);
+      }
+      delay(1000); // Tunggu 1 detik
+      // Melakukan gerakan ke posisi akhir
+      for (l = i; l <= 220; l++) {
+        Transfer(l, k, j, 90);
+        delay(20);
+      }
+      delay(1000); // Tunggu 1 detik
+
+      // Jika jarak kurang dari 8 cm
+      if (distance < 8) {
+        Transfer(l, k, j, 90);
+        delay(1000); // Tunggu 1 detik
+        // Gerakan servo ke arah atas
+        for (j = 0; j >= -45; j--) {
+          Transfer(l, k, j, 90);
+          delay(20);
+        }
+        delay(1000); // Tunggu 1 detik
+        // Gerakan servo ke arah depan
+        for (k = 0; k >= -40; k--) {
+          Transfer(l, k, j, 90);
+          delay(20);
+        }
+        delay(1000); // Tunggu 1 detik
+        // Mengembalikan gripper ke posisi semula
+        Transfer(l, j, k, 0);
+        delay(1000); // Tunggu 1 detik
+        // Gerakan servo ke arah bawah
+        for (k = -40; k <= 0; k++) {
+          Transfer(l, k, j, 0);
+          delay(20);
+        }
+        delay(1000); // Tunggu 1 detik
+        // Gerakan servo ke arah belakang
+        for (j = -45; j <= 0; j++) {
+          Transfer(l, k, j, 0);
+          delay(20);
+        }
+        delay(1000); // Tunggu 1 detik
+        // Melakukan gerakan ke posisi awal
+        for (l = l; l >= i; l--) {
+          Transfer(l, k, j, 0);
+          delay(20);
+        }
+        break;
+      } else {
+        // Jika jarak lebih dari 8 cm
+        Transfer(l, k, j, 90);
+        delay(1000); // Tunggu 1 detik
+        // Gerakan servo ke arah bawah
+        for (k = 0; k >= -80; k--) {
+          Transfer(l, k, j, 90);
+          delay(20);
+        }
+        delay(1000); // Tunggu 1 detik
+        // Gerakan servo ke arah atas
+        for (j = 0; j >= -80; j--) {
+          Transfer(l, k, j, 90);
+          delay(20);
+        }
+        delay(1000); // Tunggu 1 detik
+        // Mengembalikan gripper ke posisi semula
+        Transfer(l, j, k, 0);
+        delay(1000); // Tunggu 1 detik
+        // Gerakan servo ke arah belakang
+        for (j = -80; j <= 0; j++) {
+          Transfer(l, k, j, 0);
+          delay(20);
+        }
+        delay(1000); // Tunggu 1 detik
+        // Gerakan servo ke arah bawah
+        for (k = -80; k <= 0; k++) {
+          Transfer(l, k, j, 0);
+          delay(20);
+        }
+        delay(1000); // Tunggu 1 detik
+        // Melakukan gerakan ke posisi awal
+        for (l = l; l >= i; l--) {
+          Transfer(l, k, j, 0);
+          delay(20);
+        }
+        break;
+      }
+    }
+    delay(20);
+  }
+}
+
+int Transfer(int servo1, int servo2, int servo3, int gripper) {
+  // Kirim perintah ke perangkat eksternal melalui serial
+  Serial.print(servo1);
+  Serial.print(",");
+  Serial.print(servo2);
+  Serial.print(",");
+  Serial.print(servo3);
+  Serial.print(",");
+  Serial.print(gripper);
+  Serial.print("\n");
+
+  // Baca data dari perangkat eksternal
+  if (Serial.available() > 0) {
+    String data = Serial.readStringUntil('-');
+    String dataTrimmed = data.substring(0, data.length() - 2);
+    int distance = dataTrimmed.toInt();
+    return distance;
+  } else {
+    return 0;
+  }
+}
